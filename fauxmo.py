@@ -373,7 +373,7 @@ class rest_api_handler(object):
         self.off_cmd = off_cmd
 
     def outlet(self, name):
-        rest_api_handler.TRIGGERS[name]["outlet"]
+        return rest_api_handler.TRIGGERS[name]["outlet"]
 
     def on(self, name):
         r = requests.get("%s%s" % (self.on_cmd, self.outlet[name]))
