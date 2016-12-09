@@ -374,7 +374,7 @@ class rest_api_handler(object):
         self.off_cmd = off_cmd
 
     def on(self, name, outlet):
-        r = requests.get("%s%s" % (self.on_cmd, name))
+        r = requests.get("%s%s" % (self.on_cmd, outlet))
         return r.status_code == 200
 
     def off(self, name, outlet):
