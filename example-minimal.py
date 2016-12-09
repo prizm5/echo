@@ -12,24 +12,11 @@
     do different things based on which Echo triggered the handler.
 """
 
-import fauxmo
 import logging
 import time
-
-from debounce_handler import debounce_handler
+import fauxmo
 
 logging.basicConfig(level=logging.DEBUG)
-
-class device_handler(debounce_handler):
-    """Publishes the on/off state requested,
-       and the IP address of the Echo making the request.
-    """
-    TRIGGERS = {"living room": 52000,
-		"bedroom":52001}
-
-    def act(self, client_address, state):
-        print "State", state, "from client @", client_address
-        return True
 
 if __name__ == "__main__":
     # Startup the fauxmo server
@@ -40,11 +27,10 @@ if __name__ == "__main__":
     p.add(u)
 
     # Register the device callback as a fauxmo handler
-    #d = device_handler()
     d = fauxmo.rest_api_handler('http://192.168.0.106/rfoutlet/toggle.php?outletStatus=on&outletId=',
                        'http://192.168.0.106/rfoutlet/toggle.php?outletStatus=off&outletId=')
     for trig, port in d.TRIGGERS.items():
-        fauxmo.fauxmo(trig, u, p, None, port["port"], d)
+        fauxmo.fauxmo(trig, u, p, None, port["port"], d, port["outlet"])
 
     # Loop and poll for incoming Echo requests
     logging.debug("Entering fauxmo polling loop")

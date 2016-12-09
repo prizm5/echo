@@ -186,7 +186,8 @@ class fauxmo(upnp_device):
     def make_uuid(name):
         return ''.join(["%x" % sum([ord(c) for c in name])] + ["%x" % ord(c) for c in "%sfauxmo!" % name])[:14]
 
-    def __init__(self, name, listener, poller, ip_address, port, action_handler = None):
+    def __init__(self, name, listener, poller, ip_address, port, action_handler = None, outlet = 0):
+        self.outlet = outlet
         self.serial = self.make_uuid(name)
         self.name = name
         self.ip_address = ip_address
@@ -223,11 +224,11 @@ class fauxmo(upnp_device):
             if data.find('<BinaryState>1</BinaryState>') != -1:
                 # on
                 dbg("Responding to ON for %s" % self.name)
-                success = self.action_handler.on(self.name)
+                success = self.action_handler.on(self.name, self.outlet)
             elif data.find('<BinaryState>0</BinaryState>') != -1:
                 # off
                 dbg("Responding to OFF for %s" % self.name)
-                success = self.action_handler.off(self.name)
+                success = self.action_handler.off(self.name, self.outlet)
             else:
                 dbg("Unknown Binary State request:")
                 dbg(data)
@@ -359,30 +360,29 @@ class dummy_handler(object):
 
 
 class rest_api_handler(object):
-    TRIGGERS = {"living room": {"port":52000,"outlet":"2"}, "bedroom": {"port":52001,"outlet":"1"}, "front door": {"port":52006,"outlet":"7"},  "heos": {"port":52002,"outlet":"3"},  "tv": {"port":52003,"outlet":"4"},  "chargers": {"port":52004,"outlet":"5"}, "everything": {"port":52005,"outlet":"6"} }
+    TRIGGERS = {
+        "living room": {"port":52000, "outlet":"2"},
+        "bedroom": {"port":52001, "outlet":"1"},
+        "front door": {"port":52006, "outlet":"7"},
+        "heos": {"port":52002, "outlet":"3"},
+        "tv": {"port":52003, "outlet":"4"},
+        "chargers": {"port":52004, "outlet":"5"},
+        "everything": {"port":52005, "outlet":"6"}}
+
     def __init__(self, on_cmd, off_cmd):
         self.on_cmd = on_cmd
         self.off_cmd = off_cmd
-        self.ports = {"living room": "2", "bedroom": "1",  "heos": "3", "tv": "4", "chargers": "5", "everything": "6", "front door": "7" }
 
-    def outlet(self,name):
-        t = TRIGGERS[name]
-        print name, t
-        t
-
-    def on(self, name):
-        r = requests.get("%s%s" % (self.on_cmd,self.ports[name]))
+    def on(self, name, outlet):
+        r = requests.get("%s%s" % (self.on_cmd, name))
         return r.status_code == 200
 
-    def off(self, name):
-        r = requests.get("%s%s" % (self.off_cmd,self.ports[name]))
+    def off(self, name, outlet):
+        r = requests.get("%s%s" % (self.off_cmd, outlet))
         return r.status_code == 200
 
 if __name__ == "__main__":
-    FAUXMOS = [
-        ['office lights', dummy_handler("officelight")],
-        ['kitchen lights', dummy_handler("kitchenlight")],
-    ]
+    FAUXMOS = []
 
     if len(sys.argv) > 1 and sys.argv[1] == '-d':
         DEBUG = True
@@ -400,7 +400,7 @@ if __name__ == "__main__":
 
     # Create our FauxMo virtual switch devices
     for one_faux in FAUXMOS:
-        switch = fauxmo(one_faux[0], u, p, None, 0, action_handler = one_faux[1])
+        switch = fauxmo(one_faux[0], u, p, None, 0, action_handler=one_faux[1])
 
     dbg("Entering main loop\n")
 
