@@ -186,7 +186,8 @@ class fauxmo(upnp_device):
     def make_uuid(name):
         return ''.join(["%x" % sum([ord(c) for c in name])] + ["%x" % ord(c) for c in "%sfauxmo!" % name])[:14]
 
-    def __init__(self, name, listener, poller, ip_address, port, action_handler = None):
+    def __init__(self, name, listener, poller, ip_address, port, action_handler = None, outlet = 0):
+        self.outlet = outlet
         self.serial = self.make_uuid(name)
         self.name = name
         self.ip_address = ip_address
@@ -223,11 +224,11 @@ class fauxmo(upnp_device):
             if data.find('<BinaryState>1</BinaryState>') != -1:
                 # on
                 dbg("Responding to ON for %s" % self.name)
-                success = self.action_handler.on(self.name)
+                success = self.action_handler.on(self.name, self.outlet)
             elif data.find('<BinaryState>0</BinaryState>') != -1:
                 # off
                 dbg("Responding to OFF for %s" % self.name)
-                success = self.action_handler.off(self.name)
+                success = self.action_handler.off(self.name, self.outlet)
             else:
                 dbg("Unknown Binary State request:")
                 dbg(data)
@@ -372,15 +373,12 @@ class rest_api_handler(object):
         self.on_cmd = on_cmd
         self.off_cmd = off_cmd
 
-    def outlet(self, name):
-        return rest_api_handler.TRIGGERS[name]["outlet"]
-
-    def on(self, name):
-        r = requests.get("%s%s" % (self.on_cmd, self.outlet[name]))
+    def on(self, name, outlet):
+        r = requests.get("%s%s" % (self.on_cmd, name))
         return r.status_code == 200
 
-    def off(self, name):
-        r = requests.get("%s%s" % (self.off_cmd, self.outlet[name]))
+    def off(self, name, outlet):
+        r = requests.get("%s%s" % (self.off_cmd, outlet))
         return r.status_code == 200
 
 if __name__ == "__main__":
