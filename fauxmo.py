@@ -223,11 +223,11 @@ class fauxmo(upnp_device):
             if data.find('<BinaryState>1</BinaryState>') != -1:
                 # on
                 dbg("Responding to ON for %s" % self.name)
-                success = self.action_handler.on(client_address[0])
+                success = self.action_handler.on(self.name)
             elif data.find('<BinaryState>0</BinaryState>') != -1:
                 # off
                 dbg("Responding to OFF for %s" % self.name)
-                success = self.action_handler.off(client_address[0])
+                success = self.action_handler.off(self.name)
             else:
                 dbg("Unknown Binary State request:")
                 dbg(data)
@@ -359,16 +359,23 @@ class dummy_handler(object):
 
 
 class rest_api_handler(object):
+    TRIGGERS = {"living room": {"port":52000,"outlet":"2"}, "bedroom": {"port":52001,"outlet":"1"}, "front door": {"port":52006,"outlet":"7"},  "heos": {"port":52002,"outlet":"3"},  "tv": {"port":52003,"outlet":"4"},  "chargers": {"port":52004,"outlet":"5"}, "everything": {"port":52005,"outlet":"6"} }
     def __init__(self, on_cmd, off_cmd):
         self.on_cmd = on_cmd
         self.off_cmd = off_cmd
+        self.ports = {"living room": "2", "bedroom": "1",  "heos": "3", "tv": "4", "chargers": "5", "everything": "6", "front door": "7" }
 
-    def on(self):
-        r = requests.get(self.on_cmd)
+    def outlet(self,name):
+        t = TRIGGERS[name]
+        print name, t
+        t
+
+    def on(self, name):
+        r = requests.get("%s%s" % (self.on_cmd,self.ports[name]))
         return r.status_code == 200
 
-    def off(self):
-        r = requests.get(self.off_cmd)
+    def off(self, name):
+        r = requests.get("%s%s" % (self.off_cmd,self.ports[name]))
         return r.status_code == 200
 
 if __name__ == "__main__":
