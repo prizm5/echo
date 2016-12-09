@@ -376,11 +376,11 @@ class rest_api_handler(object):
         rest_api_handler.TRIGGERS[name]["outlet"]
 
     def on(self, name):
-        r = requests.get("%s%s" % (self.on_cmd, outlet[name]))
+        r = requests.get("%s%s" % (self.on_cmd, self.outlet[name]))
         return r.status_code == 200
 
     def off(self, name):
-        r = requests.get("%s%s" % (self.off_cmd, outlet[name]))
+        r = requests.get("%s%s" % (self.off_cmd, self.outlet[name]))
         return r.status_code == 200
 
 if __name__ == "__main__":
