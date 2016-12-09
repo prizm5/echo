@@ -359,30 +359,32 @@ class dummy_handler(object):
 
 
 class rest_api_handler(object):
-    TRIGGERS = {"living room": {"port":52000,"outlet":"2"}, "bedroom": {"port":52001,"outlet":"1"}, "front door": {"port":52006,"outlet":"7"},  "heos": {"port":52002,"outlet":"3"},  "tv": {"port":52003,"outlet":"4"},  "chargers": {"port":52004,"outlet":"5"}, "everything": {"port":52005,"outlet":"6"} }
+    TRIGGERS = {
+        "living room": {"port":52000, "outlet":"2"},
+        "bedroom": {"port":52001, "outlet":"1"},
+        "front door": {"port":52006, "outlet":"7"},
+        "heos": {"port":52002, "outlet":"3"},
+        "tv": {"port":52003, "outlet":"4"},
+        "chargers": {"port":52004, "outlet":"5"},
+        "everything": {"port":52005, "outlet":"6"}}
+
     def __init__(self, on_cmd, off_cmd):
         self.on_cmd = on_cmd
         self.off_cmd = off_cmd
-        self.ports = {"living room": "2", "bedroom": "1",  "heos": "3", "tv": "4", "chargers": "5", "everything": "6", "front door": "7" }
 
-    def outlet(self,name):
-        t = TRIGGERS[name]
-        print name, t
-        t
+    def outlet(self, name):
+        rest_api_handler.TRIGGERS[name]["outlet"]
 
     def on(self, name):
-        r = requests.get("%s%s" % (self.on_cmd,self.ports[name]))
+        r = requests.get("%s%s" % (self.on_cmd, outlet[name]))
         return r.status_code == 200
 
     def off(self, name):
-        r = requests.get("%s%s" % (self.off_cmd,self.ports[name]))
+        r = requests.get("%s%s" % (self.off_cmd, outlet[name]))
         return r.status_code == 200
 
 if __name__ == "__main__":
-    FAUXMOS = [
-        ['office lights', dummy_handler("officelight")],
-        ['kitchen lights', dummy_handler("kitchenlight")],
-    ]
+    FAUXMOS = []
 
     if len(sys.argv) > 1 and sys.argv[1] == '-d':
         DEBUG = True
@@ -400,7 +402,7 @@ if __name__ == "__main__":
 
     # Create our FauxMo virtual switch devices
     for one_faux in FAUXMOS:
-        switch = fauxmo(one_faux[0], u, p, None, 0, action_handler = one_faux[1])
+        switch = fauxmo(one_faux[0], u, p, None, 0, action_handler=one_faux[1])
 
     dbg("Entering main loop\n")
 
