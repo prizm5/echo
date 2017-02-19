@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """ fauxmo_minimal.py - Fabricate.IO
 
     This is a demo python file showing what can be done with the debounce_handler.
@@ -21,6 +22,7 @@ logging.basicConfig(level=logging.DEBUG)
 if __name__ == "__main__":
     # Startup the fauxmo server
     fauxmo.DEBUG = True
+    logging.info('Starting Echo Service')
     p = fauxmo.poller()
     u = fauxmo.upnp_broadcast_responder()
     u.init_socket()

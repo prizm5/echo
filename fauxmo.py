@@ -366,8 +366,7 @@ class rest_api_handler(object):
         "front door": {"port":52006, "outlet":"7"},
         "heos": {"port":52002, "outlet":"3"},
         "tv": {"port":52003, "outlet":"4"},
-        "chargers": {"port":52004, "outlet":"5"},
-        "everything": {"port":52005, "outlet":"6"}}
+        "chargers": {"port":52004, "outlet":"5"}}
 
     def __init__(self, on_cmd, off_cmd):
         self.on_cmd = on_cmd
